@@ -1,0 +1,38 @@
+# -*- mode: shell-script -*-
+#
+# Example configuration settings for Akanda
+
+echo "Initializing Akanda settings"
+
+Q_PLUGIN=openvswitch
+LIBVIRT_FIREWALL_DRIVER=nova.virt.firewall.NoopFirewallDriver
+NOVA_VIF_DRIVER=nova.virt.libvirt.vif.LibvirtOpenVswitchDriver
+HOST_IP=${HOST_IP:-192.168.27.100}
+HOST_IP_IFACE=eth1
+NETWORK_GATEWAY=192.168.123.1
+FIXED_RANGE=192.168.123.0/24
+KEYSTONE_TOKEN_FORMAT=UUID
+Q_META_DATA_IP=127.0.0.1
+
+# Checkout our neutron branch
+NEUTRON_REPO=git@github.com:dreamhost/quantum.git
+NEUTRON_BRANCH=havana.rc
+
+# Set up default directories
+AKANDA_NOVA_DIR=$DEST/akanda-nova
+AKANDA_NOVA_REPO=git@github.com:dreamhost/akanda-nova.git
+
+AKANDA_NEUTRON_DIR=$DEST/akanda-quantum
+AKANDA_NEUTRON_REPO=git@github.com:dreamhost/akanda-quantum.git
+
+AKANDA_RUG_DIR=$DEST/akanda-rug
+AKANDA_RUG_REPO=git@github.com:dreamhost/akanda-rug.git
+
+AKANDA_CONF_DIR=/etc/akanda
+AKANDA_RUG_CONF=$AKANDA_CONF_DIR/rug.ini
+
+AKANDA_ISO_FILE=${AKANDA_ISO_FILE:-/vagrant/data/akanda.iso}
+AKANDA_ISO_DEFAULT=https://objects.dreamhost.com/dhc/akanda.iso
+
+enable_service q-svc q-agt ak-rug
+disable_service n-net
