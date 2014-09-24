@@ -9,7 +9,7 @@ AKANDA_NOVA_BRANCH=${AKANDA_NOVA_BRANCH:-master}
 
 AKANDA_NEUTRON_DIR=$DEST/akanda-quantum
 AKANDA_NEUTRON_REPO=${AKANDA_NEUTRON_REPO:-git@github.com:dreamhost/akanda-quantum.git}
-AKANDA_NEUTRON_BRANCH=$AKANDA_NEUTRON_BRANCH:-master}
+AKANDA_NEUTRON_BRANCH=${AKANDA_NEUTRON_BRANCH:-master}
 
 AKANDA_RUG_DIR=$DEST/akanda-rug
 AKANDA_RUG_REPO=${AKANDA_RUG_REPO:-git@github.com:dreamhost/akanda-rug.git}
