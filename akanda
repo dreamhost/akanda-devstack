@@ -28,6 +28,10 @@ ROUTER_INSTANCE_FLAVOR=2
 AKANDA_CONTAINER_FORMAT='qcow2'
 PUBLIC_INTERFACE_DEFAULT='eth0'
 
+# The akanda-devstack/patches folder needs to be linked to devstack/patches so that we can refer to
+# it using the TOP_DIR variable.
+PATCHES_FOLDER=$TOP_DIR/patches
+
 function configure_akanda() {
     if [[ ! -d $AKANDA_CONF_DIR ]]; then
         sudo mkdir -p $AKANDA_CONF_DIR
@@ -46,6 +50,27 @@ function configure_akanda() {
     iniset $AKANDA_RUG_CONF DEFAULT num_worker_processes "2"
     iniset $AKANDA_RUG_CONF DEFAULT num_worker_threads "2"
     iniset $AKANDA_RUG_CONF DEFAULT reboot_error_threshold "2"
+}
+
+function patch_neutron() {
+    # The RUG doesn't work with vanilla icehouse neutron, to make it works we need to backport a patch that
+    # has been proposed for juno but not merged yet.
+    cd $DEST/neutron
+    LAST_COMMIT_HASH="$(git diff HEAD^ | md5sum | awk '{ print $1 }')"
+    PATCH_HASH="$(cat $PATCHES_FOLDER/add_routerport_instead_of_overloading_device_id.patch | md5sum | awk '{ print $1 }')"
+    # Apply the patch just first time we stack
+    if [ "$LAST_COMMIT_HASH" != "$PATCH_HASH" ]; then
+        git fetch https://review.openstack.org/openstack/neutron refs/changes/48/17248/4 && git cherry-pick FETCH_HEAD || true
+        # The patch doesn't apply cleanly so we need to apply another patch on top of it to fix conflicts. Have them as
+        # separate patches make us able to apply patches just first time we stack  because we can get the hash of
+        # 'git diff HEAD^', compare it with the hash of the patch file and undestand if the patch has already been
+        # applied or not.
+        git add .
+        git commit -m "add routerport instead of overloading device_id(merged with conflicts)"
+        git apply $PATCHES_FOLDER/add_routerport_instead_of_overloading_device_id.patch
+        git add .
+        git commit -m "fix conflicts introduced by previous patch"
+    fi
 }
 
 function configure_akanda_nova() {
