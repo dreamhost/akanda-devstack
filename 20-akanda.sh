@@ -9,6 +9,8 @@ elif [[ "$1" == "stack" && "$2" == "install" ]]; then
     install_akanda
 
 elif [[ "$1" == "stack" && "$2" == "post-config" ]]; then
+    echo_summary "Patching Neutron"
+    patch_neutron
     echo_summary "Installing Akanda"
     configure_akanda
     configure_akanda_nova
