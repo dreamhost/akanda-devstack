@@ -1,0 +1,35 @@
+diff --git a/neutron/db/l3_db.py b/neutron/db/l3_db.py
+index 97c24f8..d702a8b 100644
+--- a/neutron/db/l3_db.py
++++ b/neutron/db/l3_db.py
+@@ -175,7 +175,7 @@ class L3_NAT_db_mixin(l3.RouterPluginBase):
+                                status="ACTIVE")
+             context.session.add(router_db)
+             if gw_info:
+-                self._update_router_gw_info(context, router_db, gw_info)
++                self._update_router_gw_info(context, router_db['id'], gw_info)
+         return self._make_router_dict(router_db, process_extensions=False)
+
+     def update_router(self, context, id, router):
+@@ -188,7 +188,7 @@ class L3_NAT_db_mixin(l3.RouterPluginBase):
+         with context.session.begin(subtransactions=True):
+             router_db = self._get_router(context, id)
+             if gw_info is not None:
+-                self._update_router_gw_info(context, router_db, gw_info)
++                self._update_router_gw_info(context, router_db['id'], gw_info)
+             # Ensure we actually have something to update
+             if r.keys():
+                 router_db.update(r)
+@@ -225,10 +225,11 @@ class L3_NAT_db_mixin(l3.RouterPluginBase):
+             context.session.add(router)
+             context.session.add(rp)
+
+-    def _update_router_gw_info(self, context, router, info):
++    def _update_router_gw_info(self, context, router_id, info, router=None):
+         # TODO(salvatore-orlando): guarantee atomic behavior also across
+         # operations that span beyond the model classes handled by this
+         # class (e.g.: delete_port)
++        router = router or self._get_router(context, router_id)
+         gw_port = router.gw_port
+         # network_id attribute is required by API, so it must be present
+         network_id = info.get('network_id') if info else None
