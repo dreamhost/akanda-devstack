@@ -28,10 +28,6 @@ ROUTER_INSTANCE_FLAVOR=2
 AKANDA_CONTAINER_FORMAT='qcow2'
 PUBLIC_INTERFACE_DEFAULT='eth0'
 
-# The akanda-devstack/patches folder needs to be linked to devstack/patches so that we can refer to
-# it using the TOP_DIR variable.
-PATCHES_FOLDER=$TOP_DIR/patches
-
 function configure_akanda() {
     if [[ ! -d $AKANDA_CONF_DIR ]]; then
         sudo mkdir -p $AKANDA_CONF_DIR
@@ -50,44 +46,6 @@ function configure_akanda() {
     iniset $AKANDA_RUG_CONF DEFAULT num_worker_processes "2"
     iniset $AKANDA_RUG_CONF DEFAULT num_worker_threads "2"
     iniset $AKANDA_RUG_CONF DEFAULT reboot_error_threshold "2"
-}
-
-function patch_neutron() {
-    # The RUG doesn't work with vanilla icehouse neutron, to make it works we need to backport a patch that
-    # has been proposed for juno but not merged yet.
-    cd $DEST/neutron
-    LAST_COMMIT_HASH="$(git diff HEAD^ | md5sum | awk '{ print $1 }')"
-    PATCH_HASH="$(cat $PATCHES_FOLDER/fix_neutron_to_nova_notification.patch | md5sum | awk '{ print $1 }')"
-    # Apply the patch just first time we stack
-    if [ "$LAST_COMMIT_HASH" != "$PATCH_HASH" ]; then
-        git fetch https://review.openstack.org/openstack/neutron refs/changes/48/17248/4 && git cherry-pick FETCH_HEAD || true
-        # The patch doesn't apply cleanly so we need to apply another patch on top of it to fix conflicts. Have them as
-        # separate patches make us able to apply patches just first time we stack  because we can get the hash of
-        # 'git diff HEAD^', compare it with the hash of the patch file and undestand if the patch has already been
-        # applied or not.
-        git add .
-        git commit -m "Add routerport instead of overloading device_id(merged with conflicts)"
-        git apply $PATCHES_FOLDER/add_routerport_instead_of_overloading_device_id.patch
-        git add .
-        git commit -m "Fix conflicts introduced by previous patch"
-
-        # The above patch is a backport from a patch proposed for juno and the signature of some methods of the
-        # l3 agent changed. We need to restore those methods signature to make the patch work.
-        git apply $PATCHES_FOLDER/restore_icehouse_api.patch
-        git add .
-        git commit -m "Restore icehouse api"
-
-        # In icehouse, when a server is booted, nova asks neutron to create ports for the server and put the server in
-        # the 'pause' state. Neutron then notifies nova back when the ports have been created but just for ports
-        # where the device_owner attribute starts with the 'compute:' prefix. In our case, when a server is an akanda
-        # the device_owner attribute of some of the ports starts with the 'network:' prefix and cause the router boot
-        # to fail raising a timeout error.
-        # We need to modify the neutron's method that does the filtering and allow notification for the ports with the
-        # 'network:' prefix.
-        git apply $PATCHES_FOLDER/fix_neutron_to_nova_notification.patch
-        git add .
-        git commit -m "Fix neutron-to-nova notification about ports creation"
-    fi
 }
 
 function configure_akanda_nova() {
