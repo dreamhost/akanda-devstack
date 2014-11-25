@@ -3,6 +3,11 @@
 if [[ "$1" == "source" ]]; then
     # Initial source
     source $TOP_DIR/lib/akanda
+    source $TOP_DIR/patches/utils
+
+    # The akanda-devstack/patches folder needs to be already linked to devstack/patches so that we can refer to
+    # it here using the TOP_DIR variable.
+    PATCHES_FOLDER=$TOP_DIR/patches
 
 elif [[ "$1" == "stack" && "$2" == "install" ]]; then
     echo_summary "Installing Akanda"
