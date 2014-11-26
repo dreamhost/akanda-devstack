@@ -89,6 +89,9 @@ function pre_start_akanda() {
     iniset $AKANDA_RUG_CONF DEFAULT external_subnet_id $public_subnet_id
     neutron $auth_args subnet-create --ip-version 6 public fdee:9f85:83be::/48
 
+    # Point neutron-akanda at the subnet to use for floating IPs.  This requires a neutron service restart (later) to take effect.
+    iniset $NEUTRON_CONF akanda floatingip_subnet $public_subnet_id
+
     # setup masq rule for public network
     sudo iptables -t nat -A POSTROUTING -s 172.16.77.0/24 -o $PUBLIC_INTERFACE_DEFAULT -j MASQUERADE
 
@@ -155,4 +158,8 @@ function post_start_akanda() {
     neutron --os-username demo --os-password $ADMIN_PASSWORD \
         --os-tenant-name demo --os-auth-url $OS_AUTH_URL \
         subnet-create thenet 192.168.0.0/24
+
+    # Restart neutron so that `akanda.floatingip_subnet` is properly set
+    screen_stop_service q-svc
+    start_neutron_service_and_check
 }
