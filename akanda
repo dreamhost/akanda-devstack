@@ -138,11 +138,11 @@ function pre_start_akanda() {
             echo "Did not find $DEST/.akanda_dho_creds" 1>&2
             exit 1
         fi
-        echo "Looking for latest IMAGE file"
-        typeset latest=$(source $DEST/.akanda_dho_creds && swift -V 1.0 download akanda-linux -o - LATEST)
+        echo "Looking for AKANDA-LATEST file"
+        source $DEST/.akanda_dho_creds && swift -V 1.0 download akanda-linux -o $DEST/AKANDA-LATEST LATEST
         [ $? -ne 0 ] && exit 1
         echo "Downloading IMAGE file to $AKANDA_APPLIANCE_FILE"
-        (source $DEST/.akanda_dho_creds && swift -V 1.0 download -o $AKANDA_APPLIANCE_FILE akanda-linux $latest) || exit 1
+        (source $DEST/.akanda_dho_creds && swift -V 1.0 download -o $AKANDA_APPLIANCE_FILE akanda-linux $(cat $DEST/AKANDA-LATEST)) || exit 1
     fi
 
     glance $auth_args image-create --name akanda --disk-format $AKANDA_CONTAINER_FORMAT --container-format bare --file $AKANDA_APPLIANCE_FILE
