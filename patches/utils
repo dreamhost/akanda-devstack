@@ -8,7 +8,7 @@ function patch_neutron() {
     # has been proposed for juno but not merged yet.
     cd $DEST/neutron
     LAST_COMMIT_HASH="$(git diff HEAD^ | md5sum | awk '{ print $1 }')"
-    PATCH_HASH="$(cat $PATCHES_FOLDER/fix_neutron_to_nova_notification.patch | md5sum | awk '{ print $1 }')"
+    PATCH_HASH="$(cat $PATCHES_FOLDER/remove_lazy_join_from_ipallocationpools.patch | md5sum | awk '{ print $1 }')"
     # Apply the patch just first time we stack
     if [ "$LAST_COMMIT_HASH" != "$PATCH_HASH" ]; then
         git fetch https://review.openstack.org/openstack/neutron refs/changes/48/17248/4 && git cherry-pick FETCH_HEAD || true
@@ -38,5 +38,12 @@ function patch_neutron() {
         git apply $PATCHES_FOLDER/fix_neutron_to_nova_notification.patch
         git add .
         git commit -m "DreamHost: Fix neutron-to-nova notification about ports creation"
+
+        # The combiniation of slack addresses for ipv6 and poor handling of ipv6 ipavailabilityranges
+        # in neutron makes many calls to neutron's API(like net-list) extremely slow.
+        # To fix this we need to remove the lazy join from the IPAllocationPool model.
+        git apply $PATCHES_FOLDER/remove_lazy_join_from_ipallocationpools.patch
+        git add .
+        git commit -m "DreamHost: Remove lazy join from ipallocationpools"
     fi
 }
