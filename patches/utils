@@ -6,7 +6,6 @@
 function patch_neutron() {
     # The RUG doesn't work with vanilla icehouse neutron, to make it works we need to backport a patch that
     # has been proposed for juno but not merged yet.
-    cd $DEST/neutron
     LAST_COMMIT_HASH="$(git diff HEAD^ | md5sum | awk '{ print $1 }')"
     PATCH_HASH="$(cat $PATCHES_FOLDER/remove_lazy_join_from_ipallocationpools.patch | md5sum | awk '{ print $1 }')"
     # Apply the patch just first time we stack
