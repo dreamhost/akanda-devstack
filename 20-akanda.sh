@@ -15,11 +15,14 @@ elif [[ "$1" == "stack" && "$2" == "install" ]]; then
 
 elif [[ "$1" == "stack" && "$2" == "post-config" ]]; then
     echo_summary "Patching Neutron"
+    old_cwd=$PWD
+    cd $DEST/neutron
     patch_neutron
     echo_summary "Installing Akanda"
     configure_akanda
     configure_akanda_nova
     configure_akanda_neutron
+    cd $old_cwd
 
 elif [[ "$1" == "stack" && "$2" == "extra" ]]; then
     echo_summary "Initializing Akanda"
