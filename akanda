@@ -54,7 +54,8 @@ function configure_akanda_nova() {
 }
 
 function configure_akanda_neutron() {
-    iniset $NEUTRON_CONF DEFAULT core_plugin akanda.neutron.plugins.ovs_neutron_plugin.OVSNeutronPluginV2
+    iniset $NEUTRON_CONF DEFAULT core_plugin akanda.neutron.plugins.ml2_neutron_plugin.Ml2Plugin
+    iniset $NEUTRON_CONF DEFAULT service_plugins akanda.neutron.plugins.ml2_neutron_plugin.L3RouterPlugin
     iniset $NEUTRON_CONF DEFAULT api_extensions_path $AKANDA_NEUTRON_DIR/akanda/neutron/extensions
 }
 
