@@ -57,16 +57,20 @@ function configure_akanda_neutron() {
     iniset $NEUTRON_CONF DEFAULT core_plugin akanda.neutron.plugins.ml2_neutron_plugin.Ml2Plugin
     iniset $NEUTRON_CONF DEFAULT service_plugins akanda.neutron.plugins.ml2_neutron_plugin.L3RouterPlugin
     iniset $NEUTRON_CONF DEFAULT api_extensions_path $AKANDA_NEUTRON_DIR/akanda/neutron/extensions
+    # Use rpc as notification driver instead of the default no_ops driver
+    # We need the RUG to be able to get neutron's events notification like port.create.start/end
+    # or router.interface.start/end to make it able to boot akanda routers
+    iniset $NEUTRON_CONF DEFAULT notification_driver "neutron.openstack.common.notifier.rpc_notifier"
 }
 
 function install_akanda() {
 
     # akanda-rug rug-ctl requires the `blessed` package, which is not in OpenStack's global requirements,
     # so an attempt to install akanda-rug with the `setup_develop` function will fail.
-    #  
+    #
     # In newer versions of devstack, there is a way to disabled this behavior:
     # http://git.openstack.org/cgit/openstack-dev/devstack/commit/functions-common?id=def1534ce06409c4c70d6569ea6314a82897e28b
-    #  
+    #
     # For now, inject `blessed` into the global requirements so that akanda-rug can install
     echo "blessed" >> /opt/stack/requirements/global-requirements.txt
 
