@@ -21,12 +21,5 @@ function patch_neutron() {
         git apply $PATCHES_FOLDER/fix_neutron_to_nova_notification.patch
         git add .
         git commit -m "DreamHost: Fix neutron-to-nova notification about ports creation"
-
-        # The combiniation of SLAAC addresses for ipv6 and poor handling of ipv6 ipavailabilityranges
-        # in neutron makes many calls to neutron's API(like net-list) extremely slow.
-        # To fix this we need to remove the lazy join from the IPAllocationPool model.
-        git apply $PATCHES_FOLDER/remove_lazy_join_from_ipallocationpools.patch
-        git add .
-        git commit -m "DreamHost: Remove lazy join from ipallocationpools"
     fi
 }
