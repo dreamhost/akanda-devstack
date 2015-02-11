@@ -173,3 +173,7 @@ function post_start_akanda() {
     screen_stop_service q-svc
     start_neutron_service_and_check
 }
+
+function stop_akanda_rug() {
+    screen_stop_service ak-rug
+}
