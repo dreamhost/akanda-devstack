@@ -10,13 +10,17 @@ function patch_neutron() {
     PATCH_HASH="$(cat $PATCHES_FOLDER/remove_lazy_join_from_ipallocationpools.patch | md5sum | awk '{ print $1 }')"
     # Apply the patch just first time we stack
     if [ "$LAST_COMMIT_HASH" != "$PATCH_HASH" ]; then
-        git fetch https://review.openstack.org/openstack/neutron refs/changes/48/17248/4 && git cherry-pick FETCH_HEAD || true
+        # This is the bulk of the implemtation for the L3 RouterPort
+        # relationship implementation.  A large amount of this has actually
+        # been merged into stable/juno, so we won't have to carry this mess
+        # going forward.
+        git apply $PATCHES_FOLDER/l3-router-port-relationship.patch
+        git add .
+        git commit -m "DreamHost: Add routerport instead of overloading device_id(merged with conflicts)"
         # The patch doesn't apply cleanly so we need to apply another patch on top of it to fix conflicts. Have them as
         # separate patches make us able to apply patches just first time we stack  because we can get the hash of
         # 'git diff HEAD^', compare it with the hash of the patch file and undestand if the patch has already been
         # applied or not.
-        git add .
-        git commit -m "DreamHost: Add routerport instead of overloading device_id(merged with conflicts)"
         git apply $PATCHES_FOLDER/add_routerport_instead_of_overloading_device_id.patch
         git add .
         git commit -m "DreamHost: Fix conflicts introduced by previous patch"
