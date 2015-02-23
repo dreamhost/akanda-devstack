@@ -158,7 +158,7 @@ function pre_start_akanda() {
 }
 
 function start_akanda_rug() {
-    screen_it ak-rug "cd $AKANDA_RUG_DIR && sudo akanda-rug-service --config-file $AKANDA_RUG_CONF"
+    screen_it ak-rug "cd $AKANDA_RUG_DIR && akanda-rug-service --config-file $AKANDA_RUG_CONF"
     echo '************************************************************'
     echo "Sleeping for a while to make sure the tap device gets set up"
     echo '************************************************************'
@@ -177,4 +177,10 @@ function post_start_akanda() {
     # Restart neutron so that `akanda.floatingip_subnet` is properly set
     screen_stop_service q-svc
     start_neutron_service_and_check
+}
+
+function stop_akanda_rug() {
+    echo "Stopping the rug..."
+    screen_stop_service ak-rug
+    stop_process ak-rug
 }
