@@ -32,12 +32,10 @@ elif [[ "$1" == "stack" && "$2" == "extra" ]]; then
 fi
 
 if [[ "$1" == "unstack" ]]; then
-    # no-op
-    :
+    stop_akanda_rug
 fi
 
 if [[ "$1" == "clean" ]]; then
     # no-op
     :
 fi
-
