@@ -3,10 +3,6 @@
 # functions specific to akanda
 
 # Set up default directories
-AKANDA_NOVA_DIR=$DEST/akanda-nova
-AKANDA_NOVA_REPO=${AKANDA_NOVA_REPO:-git@github.com:dreamhost/akanda-nova.git}
-AKANDA_NOVA_BRANCH=${AKANDA_NOVA_BRANCH:-master}
-
 AKANDA_NEUTRON_DIR=$DEST/akanda-quantum
 AKANDA_NEUTRON_REPO=${AKANDA_NEUTRON_REPO:-git@github.com:dreamhost/akanda-quantum.git}
 AKANDA_NEUTRON_BRANCH=${AKANDA_NEUTRON_BRANCH:-master}
@@ -49,7 +45,6 @@ function configure_akanda() {
 }
 
 function configure_akanda_nova() {
-    iniset $NOVA_CONF DEFAULT network_api_class akanda.nova.neutronv2.api.API
     iniset $NOVA_CONF DEFAULT service_neutron_metadata_proxy True
 }
 
@@ -77,9 +72,6 @@ function install_akanda() {
     git_clone $AKANDA_NEUTRON_REPO $AKANDA_NEUTRON_DIR $AKANDA_NEUTRON_BRANCH
     setup_develop $AKANDA_NEUTRON_DIR
 
-    git_clone $AKANDA_NOVA_REPO $AKANDA_NOVA_DIR $AKANDA_NOVA_BRANCH
-    setup_develop $AKANDA_NOVA_DIR
-
     git_clone $AKANDA_RUG_REPO $AKANDA_RUG_DIR $AKANDA_RUG_BRANCH
     setup_develop $AKANDA_RUG_DIR
 }
@@ -95,7 +87,7 @@ function _remove_subnets() {
 
 function pre_start_akanda() {
     typeset auth_args="--os-username $Q_ADMIN_USERNAME --os-password $SERVICE_PASSWORD --os-tenant-name $SERVICE_TENANT_NAME --os-auth-url $OS_AUTH_URL"
-    neutron $auth_args net-create public --router:external=True
+    neutron $auth_args net-create public --router:external
 
     # Remove the ipv6 subnet created automatically before adding our own.
     _remove_subnets public
@@ -162,7 +154,7 @@ function start_akanda_rug() {
     echo '************************************************************'
     echo "Sleeping for a while to make sure the tap device gets set up"
     echo '************************************************************'
-    sleep 30
+    sleep 10
 }
 
 function post_start_akanda() {
