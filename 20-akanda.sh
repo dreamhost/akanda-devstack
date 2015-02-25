@@ -3,11 +3,6 @@
 if [[ "$1" == "source" ]]; then
     # Initial source
     source $TOP_DIR/lib/akanda
-    source $TOP_DIR/patches/utils
-
-    # The akanda-devstack/patches folder needs to be already linked to devstack/patches so that we can refer to
-    # it here using the TOP_DIR variable.
-    PATCHES_FOLDER=$TOP_DIR/patches
 
 elif [[ "$1" == "stack" && "$2" == "install" ]]; then
     echo_summary "Installing Akanda"
@@ -15,10 +10,6 @@ elif [[ "$1" == "stack" && "$2" == "install" ]]; then
     install_akanda
 
 elif [[ "$1" == "stack" && "$2" == "post-config" ]]; then
-    echo_summary "Patching Neutron"
-    old_cwd=$PWD
-    cd $DEST/neutron
-    patch_neutron
     echo_summary "Installing Akanda"
     configure_akanda
     configure_akanda_nova

@@ -1,38 +1,36 @@
-# -*- mode: shell-script -*-
-#
-# Example configuration settings for Akanda
+[[local|localrc]]
+ADMIN_PASSWORD=secrete
+DATABASE_PASSWORD=$ADMIN_PASSWORD
+RABBIT_PASSWORD=$ADMIN_PASSWORD
+SERVICE_PASSWORD=$ADMIN_PASSWORD
+SERVICE_TOKEN=a682f596-76f3-11e3-bbbb-e716f9080d50
+NETWORK_GATEWAY=172.31.1.1
+FIXED_RANGE=172.31.1.0/24
+HOST_IP=172.17.2.5
 
-echo "Initializing Akanda settings"
+AKANDA_IMAGE_FILE=/home/mark/akanda_cloud.qcow2
+AKANDA_NEUTRON_BRANCH=vanilla
+AKANDA_RUG_BRANCH=vanilla_juno
+AKANDA_NEUTRON_REPO=http://github.com/markmcclain/akanda-quantum.git
+AKANDA_RUG_REPO=http://github.com/markmcclain/akanda-rug.git
 
-Q_PLUGIN=openvswitch
-LIBVIRT_FIREWALL_DRIVER=nova.virt.firewall.NoopFirewallDriver
-NOVA_VIF_DRIVER=nova.virt.libvirt.vif.LibvirtOpenVswitchDriver
-HOST_IP=${HOST_IP:-192.168.27.100}
-HOST_IP_IFACE=eth1
-NETWORK_GATEWAY=192.168.123.1
-FIXED_RANGE=192.168.123.0/24
-KEYSTONE_TOKEN_FORMAT=UUID
-Q_META_DATA_IP=127.0.0.1
+ML2_L3_PLUGIN=akanda.neutron.plugins.ml2_neutron_plugin.L3RouterPlugin
 
-# Checkout our neutron branch
-NEUTRON_REPO=git@github.com:dreamhost/quantum.git
-NEUTRON_BRANCH=havana.rc
+enable_service n-novnc
+disable_service n-xvnc
 
-# Set up default directories
-AKANDA_NOVA_DIR=$DEST/akanda-nova
-AKANDA_NOVA_REPO=git@github.com:dreamhost/akanda-nova.git
+enable_service neutron
+enable_service q-svc
+enable_service q-agt
+enable_service q-meta
 
-AKANDA_NEUTRON_DIR=$DEST/akanda-quantum
-AKANDA_NEUTRON_REPO=git@github.com:dreamhost/akanda-quantum.git
+enable_service ak-rug
 
-AKANDA_RUG_DIR=$DEST/akanda-rug
-AKANDA_RUG_REPO=git@github.com:dreamhost/akanda-rug.git
-
-AKANDA_CONF_DIR=/etc/akanda
-AKANDA_RUG_CONF=$AKANDA_CONF_DIR/rug.ini
-
-AKANDA_ISO_FILE=${AKANDA_ISO_FILE:-/vagrant/data/akanda.iso}
-AKANDA_ISO_DEFAULT=https://objects.dreamhost.com/dhc/akanda.iso
-
-enable_service q-svc q-agt ak-rug
+disable_service tempest
 disable_service n-net
+disable_service heat
+disable_service h-api
+disable_service h-api-cfn
+disable_service h-api-cw
+disable_service h-eng
+
