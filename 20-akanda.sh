@@ -11,6 +11,7 @@ if [[ "$1" == "source" ]]; then
 
 elif [[ "$1" == "stack" && "$2" == "install" ]]; then
     echo_summary "Installing Akanda"
+    set_neutron_user_permission
     install_akanda
 
 elif [[ "$1" == "stack" && "$2" == "post-config" ]]; then

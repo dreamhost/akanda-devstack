@@ -184,3 +184,15 @@ function stop_akanda_rug() {
     screen_stop_service ak-rug
     stop_process ak-rug
 }
+
+function set_neutron_user_permission() {
+    # Starting from juno services users are not granted with the admin role anymore
+    # but with a new `service` role.
+    # Since nova policy allows only vms booted by admin users to attach ports on the
+    # public networks, we need to modify the policy and allow users with the service
+    # to do that too.
+
+    local old_value='"network:attach_external_network": "rule:admin_api"'
+    local new_value='"network:attach_external_network": "rule:admin_api or role:service"'
+    sed -i "s/$old_value/$new_value/g" /etc/nova/policy.json
+}
