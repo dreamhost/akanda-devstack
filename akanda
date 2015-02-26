@@ -95,7 +95,7 @@ function _remove_subnets() {
 
 function pre_start_akanda() {
     typeset auth_args="--os-username $Q_ADMIN_USERNAME --os-password $SERVICE_PASSWORD --os-tenant-name $SERVICE_TENANT_NAME --os-auth-url $OS_AUTH_URL"
-    neutron $auth_args net-create public -- --router:external=True
+    neutron $auth_args net-create public -- --router:external
 
     # Remove the ipv6 subnet created automatically before adding our own.
     _remove_subnets public
