@@ -122,7 +122,7 @@ function pre_start_akanda() {
     # Remove the ipv6 subnet created automatically before adding our own.
     _remove_subnets mgt
 
-    typeset mgt_subnet_id=$(neutron $auth_args subnet-create mgt fdca:3ba5:a17a:acda::/64 --ip-version=6 | grep ' id ' | awk '{ print $4 }')
+    typeset mgt_subnet_id=$(neutron $auth_args subnet-create mgt fdca:3ba5:a17a:acda::/64 --ip-version=6 --ipv6-address-mode slaac | grep ' id ' | awk '{ print $4 }')
     iniset $AKANDA_RUG_CONF DEFAULT management_subnet_id $mgt_subnet_id
 
     # Remove the private network created by devstack
