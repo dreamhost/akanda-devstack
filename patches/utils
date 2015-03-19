@@ -25,5 +25,10 @@ function patch_neutron() {
         git apply $PATCHES_FOLDER/fix_neutron_to_nova_notification.patch
         git add .
         git commit -m "DreamHost: Fix neutron-to-nova notification about ports creation"
+
+        # routerports migration patch
+        git apply $PATCHES_FOLDER/fix_routerports_migration.patch
+        git add .
+        git commit -m "DreamHost: fix routerports migration script"
     fi
 }
