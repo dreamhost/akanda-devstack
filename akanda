@@ -177,6 +177,10 @@ function post_start_akanda() {
     # Restart neutron so that `akanda.floatingip_subnet` is properly set
     screen_stop_service q-svc
     start_neutron_service_and_check
+
+    # Due to a bug in security groups we need to enable udp ingress traffic
+    # on port 68 to allow vms to get dhcp replies from the router.
+    set_demo_tenant_sec_group_dhcp_rules
 }
 
 function stop_akanda_rug() {
@@ -195,4 +199,9 @@ function set_neutron_user_permission() {
     local old_value='"network:attach_external_network": "rule:admin_api"'
     local new_value='"network:attach_external_network": "rule:admin_api or role:service"'
     sed -i "s/$old_value/$new_value/g" /etc/nova/policy.json
+}
+
+function set_demo_tenant_sec_group_dhcp_rules() {
+    typeset auth_args="--os-username demo --os-password $OS_PASSWORD --os-tenant-name demo --os-auth-url $OS_AUTH_URL"
+    neutron $auth_args security-group-rule-create --direction ingress --ethertype IPv4 --protocol udp --port-range-min 68 --port-range-max 68 default
 }
