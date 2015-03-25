@@ -1,5 +1,5 @@
 diff --git a/neutron/db/migration/alembic_migrations/versions/544673ac99ab_add_router_port_table.py b/neutron/db/migration/alembic_migrations/versions/544673ac99ab_add_router_port_table.py
-index cf3190b..35c0e0e 100644
+index cf3190b..789ddd2 100644
 --- a/neutron/db/migration/alembic_migrations/versions/544673ac99ab_add_router_port_table.py
 +++ b/neutron/db/migration/alembic_migrations/versions/544673ac99ab_add_router_port_table.py
 @@ -28,6 +28,8 @@ down_revision = '1680e1f0c4dc'
@@ -11,7 +11,7 @@ index cf3190b..35c0e0e 100644
  SQL_STATEMENT = (
      "insert into routerports "
      "select "
-@@ -40,25 +42,26 @@ SQL_STATEMENT = (
+@@ -40,25 +42,29 @@ SQL_STATEMENT = (
  
  
  def upgrade():
@@ -53,6 +53,9 @@ index cf3190b..35c0e0e 100644
  
 -    op.execute(SQL_STATEMENT)
 +        op.execute(SQL_STATEMENT)
++    else:
++        op.drop_column('routerports', 'id')
++        op.drop_index('router_id', 'routerports')
  
  
  def downgrade():
