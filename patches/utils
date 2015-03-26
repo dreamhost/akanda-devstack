@@ -30,5 +30,10 @@ function patch_neutron() {
         git apply $PATCHES_FOLDER/fix_routerports_migration.patch
         git add .
         git commit -m "DreamHost: fix routerports migration script"
+
+        # remove ipallocationpools lazy join
+        git apply $PATCHES_FOLDER/remove_ipallocationpools_lazy_join.patch
+        git add .
+        git commit -m "DreamHost: remove ipallocationpools lazy join"
     fi
 }
