@@ -1,0 +1,44 @@
+From 7e5c0042afe0fbca9d00611dc9124f150af66d9e Mon Sep 17 00:00:00 2001
+From: Rosario Di Somma <rosario.disomma@dreamhost.com>
+Date: Wed, 1 Jul 2015 12:06:50 -0700
+Subject: [PATCH] DreamHost: Fix the floating ip allocation issue
+
+DHC-2977
+
+A recent upstream change is not compatible with the way we are
+patching neutron to work with akanda and is broking floating ip
+allocation(commit 22ef9e99b1b4fa28ceb3f2b77d67a1e19494b6b3)
+The change is using the device_id to filter ports passing as value
+the ID of the neutron router. For ports attached to routersm akanda
+set that value to be the ID ot the akanda router making that query
+always an empty list.
+
+Change-Id: I7f3d133778389592f48c2d53be715d990f141d5b
+Signed-off-by: Rosario Di Somma <rosario.disomma@dreamhost.com>
+---
+ neutron/db/l3_db.py | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+
+diff --git a/neutron/db/l3_db.py b/neutron/db/l3_db.py
+index 4943fba..022c913 100644
+--- a/neutron/db/l3_db.py
++++ b/neutron/db/l3_db.py
+@@ -714,11 +714,10 @@ class L3_NAT_dbonly_mixin(l3.RouterPluginBase):
+
+         for router_port in routerport_qry:
+             router_id = router_port.router.id
+-            router_gw_qry = context.session.query(models_v2.Port)
+-            has_gw_port = router_gw_qry.filter_by(
+-                network_id=external_network_id,
+-                device_id=router_id,
+-                device_owner=DEVICE_OWNER_ROUTER_GW).count()
++            has_gw_port = [
++                p for p in router_port.router.attached_ports.all()
++                if (p.port_type == DEVICE_OWNER_ROUTER_GW and
++                    p.port.network_id == external_network_id)]
+             if has_gw_port:
+                 return router_id
+
+--
+1.9.1
+
