@@ -7,7 +7,7 @@ function patch_neutron() {
     # The RUG doesn't work with vanilla icehouse neutron, to make it works we need to backport a patch that
     # has been proposed for juno but not merged yet.
     LAST_COMMIT_HASH="$(git diff HEAD^ | md5sum | awk '{ print $1 }')"
-    PATCH_HASH="$(cat $PATCHES_FOLDER/add_support_for_the_akanda_project.patch | md5sum | awk '{ print $1 }')"
+    PATCH_HASH="$(cat $PATCHES_FOLDER/fix_the_floating_ip_allocation_issue.patch | md5sum | awk '{ print $1 }')"
     # Apply the patch just first time we stack
     if [ "$LAST_COMMIT_HASH" != "$PATCH_HASH" ]; then
         # Neutron need to be patched to work with the Akanda project.
@@ -30,5 +30,10 @@ function patch_neutron() {
         git apply $PATCHES_FOLDER/fix_routerports_migration.patch
         git add .
         git commit -m "DreamHost: fix routerports migration script"
+
+        # fix floating ip allocation issue
+        git apply $PATCHES_FOLDER/fix_the_floating_ip_allocation_issue.patch
+        git add .
+        git commit -m "DreamHost: Fix the floating ip allocation issue"
     fi
 }
